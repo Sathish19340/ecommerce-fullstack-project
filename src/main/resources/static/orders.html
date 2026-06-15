@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Orders</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" 
+rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+    
+    <a class="navbar-brand">
+    E-Commerce Store
+    </a>
+    
+    <div>
+    <a href="products.html" class="btn btn-warning me-2">Products</a>
+    <a href="cart.html" class="btn btn-warning me-2">Cart</a>
+    <button class="btn btn-danger" onclick="logout()">Logout</button>
+    </div>
+    </div>
+    </nav>
+
+
+<div class="container mt-4">
+<h2 class="text-center mb-4">My Orders</h2>
+<div id="orders"></div>
+</div>
+<script>
+
+const userId=localStorage.getItem("userId");
+
+fetch(`http://localhost:8080/orders/${userId}`)
+.then(response=>response.json())
+.then(data=>{
+	let output="";
+	
+	data.forEach(order=>{
+		output+=`
+		<div class="card shadow mb-3">
+		<div class="card-body">
+		
+		<h4>Order #${order.id}</h4>
+		<p>Total Amount:${order.totalAmount}</p>
+		</div>
+		</div>
+		`;
+	});
+	
+	document.getElementById("orders").innerHTML=output;
+})
+.catch(error=>console.log(error));
+
+function logout(){
+	localStorage.clear();
+	window.location.href="login.html";
+}
+
+</script>
+
+</body>
+</html>

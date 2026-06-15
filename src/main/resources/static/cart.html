@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cart</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" 
+rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+    
+    <a class="navbar-brand">
+    E-Commerce Store
+    </a>
+    
+    <div>
+    <a href="products.html" class="btn btn-warning me-2">Products</a>
+    <a href="orders.html" class="btn btn-warning me-2">Orders</a>
+    <button class="btn btn-danger" onclick="logout()">Logout</button>
+    </div>
+    </div>
+    </nav>
+
+<div class="container mt-4">
+
+    <h2 class="text-center mb-4">My Cart</h2>
+	<div id="CartItems"></div>
+	<div class="text-center mt-4">
+	<h4 id="totalAmount"></h4>
+	<button class="btn btn-sucess btn-lg"
+	onclick="placeOrder()">
+	Place Order
+	</button>
+	</div>
+	
+</div>
+	
+	<script>
+	
+	let totalAmount=0;
+	
+	const userId=localStorage.getItem("userId");
+	
+	fetch(`http://localhost:8080/cart/${userId}`)
+	.then(response=>response.json())
+	.then(data=>{
+		let output="";
+		data.forEach(item=>{
+			totalAmount+=item.price*item.quantity;
+			
+			output+=`
+			<div class="card shadow mb-3">
+			<div class="card-body">
+			
+			<h5>${item.productName}</h5>
+			<p>Price:${item.price}</p>
+			<p>Quantity:${item.quantity}</p>
+			</div>
+			</div>
+			`;
+			
+		});
+		
+		document.getElementById("CartItems").innerHTML=output;
+		document.getElementById("totalAmount").innerHTML="Total Amount: "+totalAmount;
+	});
+	
+	
+	
+	function placeOrder(){
+		const order={
+				userId:userId,
+				totalAmount:totalAmount
+		};
+		
+		fetch("http://localhost:8080/orders",{
+			method:"POST",
+			headers:{
+				"Content-Type":"application/json"
+			},
+			body:JSON.stringify(order)
+		})
+		.then(response=>response.json())
+		.then(data=>{
+				alert("Order Placed Successfully");
+				window.location.href="orders.html";
+		})
+		.catch(error=>console.log(error));
+	}
+	function logout(){
+		localStorage.clear();
+		window.location.href="login.html";
+	}
+	
+	</script>
+</body>
+</html>

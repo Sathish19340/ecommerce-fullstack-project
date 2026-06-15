@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" 
+rel="stylesheet">
+</head>
+<body class="bg-light">
+    
+    <div class="container mt-4">
+    <h2 class="text-center mb-4">Admin Product management</h2>
+    <div class="card p-4 shadow">
+    
+    <input type="hidden" id="productId">
+    <input type="text" id="name" class="form-control mb-3"
+    placeholder="Product Name">
+    <input type="number" id="price" class="form-control mb-3"
+    placeholder="Price">
+    <input type="number" id="quantity" class="form-control mb-3"
+    placeholder="Quantity">
+    <input type="text" id="imageUrl" class="form-control mb-3"
+    placeholder="Image URL">
+    
+    <button class="btn btn-success"
+    onclick="addProduct()">Add Product
+    </button>
+    <button class="btn btn-primary mt-2"
+    onclick="updateProduct()">Update Product
+    </button>
+    
+    
+    </div>
+    <hr>
+    <div id="products"></div>
+    </div>
+	
+	<script>
+	
+	loadProducts();
+	function loadProducts(){
+		
+		
+		fetch("http://localhost:8080/products")
+		.then(response=>response.json())
+		.then(data=>{
+			let output="";
+			data.forEach(product=>{
+				
+				output+=`
+				<div class="card mt-3 shadow">
+				<div class="card-body">
+				<h5>${product.name}</h5>
+				<p>${product.price}</p>
+				<p>${product.quantity}</p>
+				
+				<button class="btn btn-warning me-2"
+				onclick="editProduct(
+						${product.id},
+						'${product.name}',
+						${product.price},
+						${product.quantity},
+						'${product.imageUrl}'
+				)">
+				Edit
+				</button>
+				
+				<button class="btn btn-danger"
+				onclick="deleteProduct(${product.id})">
+				Delete
+				</button>
+				</div>
+				</div>
+				`;
+			});
+			
+			document.getElementById("products").innerHTML=output;
+		});
+	}
+	
+	
+	
+	
+	
+	function addProduct(){
+		const product={
+				name:document.getElementById("name").value,
+				price:document.getElementById("price").value,
+				quantity:document.getElementById("quantity").value,
+				imageUrl:document.getElementById("imageUrl").value
+		};
+		
+		fetch("http://localhost:8080/products",{
+			method:"POST",
+			headers:{
+				"Content-Type":"application/json"
+			},
+			body:JSON.stringify(product)
+		})
+		.then(response=>response.json())
+		.then(data=>{
+				alert("Product Added");
+				location.reload();
+		});
+	}
+	
+	function editProduct(
+			id,
+			name,
+			price,
+			quantity,
+			imageUrl){
+		document.getElementById("productId").value=id;
+		document.getElementById("name").value=name;
+		document.getElementById("price").value=price;
+		document.getElementById("quantity").value=quantity;
+		document.getElementById("imageUrl").value=imageUrl;
+		
+	}
+	
+	function updateProduct(){
+		const id=document.getElementById("productId").value;
+		const product={
+				name:document.getElementById("name").value,
+				price:document.getElementById("price").value,
+				quantity:document.getElementById("quantity").value,
+				imageUrl:document.getElementById("imageUrl").value
+		};
+		
+		fetch(`http://localhost:8080/products/${id}`,{
+			method:"PUT",
+			headers:{
+				"Content-Type":"application/json"
+			},
+			body:JSON.stringify(product)
+		})
+		.then(response=>response.json())
+		.then(data=>{
+				alert("Product Updated");
+				location.reload();
+		});
+	}
+	
+	
+	function deleteProduct(id){
+		fetch(`http://localhost:8080/products/${id}`,{
+			method:"DELETE",
+		})
+		.then(()=>{
+				alert("Product Deleted");
+				location.reload();
+		});
+	}
+	</script>
+</body>
+</html>
